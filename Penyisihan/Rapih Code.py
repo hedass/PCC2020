@@ -33,3 +33,64 @@ def grv_calc (rtop, rbase, htop, hbase) :
 
 grv_alpha = grv_calc(rtop_alpha, rbase_alpha, htop_alpha, hbase_alpha) #meter cubic
 grv_beta =  grv_calc(rtop_beta, rbase_beta, htop_beta, hbase_beta) #meter cubic
+
+#VISUALIZATION
+theta = np.linspace(0,2*np.pi,90)
+r = np.linspace(0,1,100)
+T, R = np.meshgrid(theta, r)
+
+#Big Cone
+h_big_alpha = htop_alpha + 70/100*htop_alpha
+r_big_alpha = rtop_alpha/htop_alpha * h_big_alpha
+
+X_big_alpha = r_big_alpha * R * np.sin(T)
+Y_big_alpha = r_big_alpha * R * np.cos(T)
+Z_big_alpha = h_big_alpha * R - (h_big_alpha - htop_alpha)
+
+for i in range(len(X_big_alpha)):
+    X_big_alpha[i][20:60] = None
+
+#Little Cone
+h_lit_alpha = hbase_alpha + 70/100*hbase_alpha
+r_lit_alpha = rbase_alpha/hbase_alpha * h_lit_alpha
+
+X_lit_alpha = r_lit_alpha * R * np.sin(T)
+Y_lit_alpha = r_lit_alpha * R * np.cos(T)
+Z_lit_alpha = h_lit_alpha * R - (h_lit_alpha - hbase_alpha)
+
+#Alpha Cone(Oil)
+X_top_alpha = rtop_alpha * R * np.sin(T)
+Y_top_alpha = rtop_alpha * R * np.cos(T)
+Z_top_alpha = htop_alpha * R
+
+X_big_alpha = np.flip(X_big_alpha, 0)
+Y_big_alpha = np.flip(Y_big_alpha, 0)
+X_top_alpha = np.flip(X_top_alpha, 0)
+Y_top_alpha = np.flip(Y_top_alpha, 0)
+X_lit_alpha = np.flip(X_lit_alpha, 0)
+Y_lit_alpha = np.flip(Y_lit_alpha, 0)
+
+#Fault
+dip = np.arccos(rtop_alpha/((rtop_alpha**2 + htop_alpha**2)**0.5))*180/np.pi
+
+Xf = np.linspace(-r_big_alpha, r_big_alpha, 10)
+Yf = np.linspace(-r_big_alpha, r_big_alpha, 5)
+Xf, Yf = np.meshgrid(Xf, Yf)
+Zf = (Xf-rtop_alpha)*np.tan(dip*np.pi/180)
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+
+ax.plot_wireframe(Xf, Yf, Zf, antialiased=True)
+
+ax.plot_surface(X_lit_alpha, Y_lit_alpha, Z_lit_alpha,
+                color='purple')
+ax.plot_surface(X_top_alpha, Y_top_alpha, Z_top_alpha,
+                color='limegreen')
+ax.plot_surface(X_big_alpha, Y_big_alpha, Z_big_alpha,
+                color='red')
+
+ax.set_xlabel("EASTING(m)")
+ax.set_ylabel("NORTHING(m)")
+ax.set_zlabel("ELEVATION(m)")
+plt.show()
