@@ -43,68 +43,72 @@ def create_cone(R, T, r, H, hmax, hmin):
     Z = H * R - (hmax - hmin)
     return X, Y, Z
 
-grv_alpha = grv_calc(rtop_alpha, rbase_alpha, htop_alpha, hbase_alpha) #meter cubic
-grv_beta =  grv_calc(rtop_beta, rbase_beta, htop_beta, hbase_beta) #meter cubic
+def main():
+    grv_alpha = grv_calc(rtop_alpha, rbase_alpha, htop_alpha, hbase_alpha) #meter cubic
+    grv_beta =  grv_calc(rtop_beta, rbase_beta, htop_beta, hbase_beta) #meter cubic
+    
+    #VISUALIZATION
+    theta = np.linspace(0,2*np.pi,90)
+    r = np.linspace(0,1,10)
+    T, R = np.meshgrid(theta, r)
 
-#VISUALIZATION
-theta = np.linspace(0,2*np.pi,90)
-r = np.linspace(0,1,10)
-T, R = np.meshgrid(theta, r)
+    #Big Cone
+    h_big_alpha = htop_alpha + 70/100*htop_alpha
+    r_big_alpha = rtop_alpha/htop_alpha * h_big_alpha
 
-#Big Cone
-h_big_alpha = htop_alpha + 70/100*htop_alpha
-r_big_alpha = rtop_alpha/htop_alpha * h_big_alpha
-
-X_big_alpha, Y_big_alpha, Z_big_alpha = create_cone(R, T, r_big_alpha, h_big_alpha, h_big_alpha, htop_alpha)
-
-
-# Slice Open surface
-X_big_alpha = slice_arr(20, 60, X_big_alpha)
-Y_big_alpha = slice_arr(20, 60, Y_big_alpha)
-
-#Little Cone
-h_lit_alpha = hbase_alpha + 70/100*hbase_alpha
-r_lit_alpha = rbase_alpha/hbase_alpha * h_lit_alpha
-
-X_lit_alpha, Y_lit_alpha, Z_lit_alpha = create_cone(R, T, r_lit_alpha, h_lit_alpha, h_lit_alpha, hbase_alpha)
+    X_big_alpha, Y_big_alpha, Z_big_alpha = create_cone(R, T, r_big_alpha, h_big_alpha, h_big_alpha, htop_alpha)
 
 
-#Alpha Cone(Oil)
-X_top_alpha, Y_top_alpha, Z_top_alpha = create_cone(R, T, rtop_alpha, htop_alpha, 0, 0)
+    # Slice Open surface
+    X_big_alpha = slice_arr(20, 60, X_big_alpha)
+    Y_big_alpha = slice_arr(20, 60, Y_big_alpha)
 
-X_big_alpha = np.flip(X_big_alpha, 0)
-Y_big_alpha = np.flip(Y_big_alpha, 0)
-X_top_alpha = np.flip(X_top_alpha, 0)
-Y_top_alpha = np.flip(Y_top_alpha, 0)
-X_lit_alpha = np.flip(X_lit_alpha, 0)
-Y_lit_alpha = np.flip(Y_lit_alpha, 0)
+    #Little Cone
+    h_lit_alpha = hbase_alpha + 70/100*hbase_alpha
+    r_lit_alpha = rbase_alpha/hbase_alpha * h_lit_alpha
 
-#Fault
-dip = np.arccos(rtop_alpha/((rtop_alpha**2 + htop_alpha**2)**0.5))*180/np.pi
-
-Xf = np.linspace(-r_big_alpha, r_big_alpha, 10)
-Yf = np.linspace(-r_big_alpha, r_big_alpha, 10)
-Xf, Yf = np.meshgrid(Xf, Yf)
-Zf = (Xf-rtop_alpha)*np.tan(dip*np.pi/180)
-
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
+    X_lit_alpha, Y_lit_alpha, Z_lit_alpha = create_cone(R, T, r_lit_alpha, h_lit_alpha, h_lit_alpha, hbase_alpha)
 
 
-ax.plot_surface(X_lit_alpha, Y_lit_alpha, Z_lit_alpha,
-                cmap='gist_heat')
+    #Alpha Cone(Oil)
+    X_top_alpha, Y_top_alpha, Z_top_alpha = create_cone(R, T, rtop_alpha, htop_alpha, 0, 0)
 
-ax.plot_surface(Xf, Yf, Zf, antialiased=True, color="grey")
+    X_big_alpha = np.flip(X_big_alpha, 0)
+    Y_big_alpha = np.flip(Y_big_alpha, 0)
+    X_top_alpha = np.flip(X_top_alpha, 0)
+    Y_top_alpha = np.flip(Y_top_alpha, 0)
+    X_lit_alpha = np.flip(X_lit_alpha, 0)
+    Y_lit_alpha = np.flip(Y_lit_alpha, 0)
 
-ax.plot_surface(X_top_alpha, Y_top_alpha, Z_top_alpha,
-                cmap='summer')
+    #Fault
+    dip = np.arccos(rtop_alpha/((rtop_alpha**2 + htop_alpha**2)**0.5))*180/np.pi
 
-ax.plot_surface(X_big_alpha, Y_big_alpha, Z_big_alpha,
-                cmap='gist_heat')
+    Xf = np.linspace(-r_big_alpha, r_big_alpha, 10)
+    Yf = np.linspace(-r_big_alpha, r_big_alpha, 10)
+    Xf, Yf = np.meshgrid(Xf, Yf)
+    Zf = (Xf-rtop_alpha)*np.tan(dip*np.pi/180)
 
-ax.view_init(47,-126)
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
 
-ax.set_xlabel("EASTING(m)")
-ax.set_ylabel("NORTHING(m)")
-ax.set_zlabel("ELEVATION(m)")
-plt.show()
+
+    ax.plot_surface(X_lit_alpha, Y_lit_alpha, Z_lit_alpha,
+                    cmap='gist_heat')
+
+    ax.plot_surface(Xf, Yf, Zf, antialiased=True, color="grey")
+
+    ax.plot_surface(X_top_alpha, Y_top_alpha, Z_top_alpha,
+                    cmap='summer')
+
+    ax.plot_surface(X_big_alpha, Y_big_alpha, Z_big_alpha,
+                    cmap='gist_heat')
+
+    ax.view_init(47,-126)
+
+    ax.set_xlabel("EASTING(m)")
+    ax.set_ylabel("NORTHING(m)")
+    ax.set_zlabel("ELEVATION(m)")
+    plt.show()
+
+if __name__ == "__main__":
+    main()
