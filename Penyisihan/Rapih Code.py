@@ -31,12 +31,19 @@ def grv_calc (rtop, rbase, htop, hbase) :
     vol = 1/3*np.pi*(rtop**2*htop - rbase**2*hbase)
     return vol
 
+# Slicing
+def slice_arr(start, end, arr):
+    for i in range(len(arr)):
+        arr[i][start:end] = None
+    
+    return arr
+
 grv_alpha = grv_calc(rtop_alpha, rbase_alpha, htop_alpha, hbase_alpha) #meter cubic
 grv_beta =  grv_calc(rtop_beta, rbase_beta, htop_beta, hbase_beta) #meter cubic
 
 #VISUALIZATION
 theta = np.linspace(0,2*np.pi,90)
-r = np.linspace(0,1,100)
+r = np.linspace(0,1,10)
 T, R = np.meshgrid(theta, r)
 
 #Big Cone
@@ -47,8 +54,9 @@ X_big_alpha = r_big_alpha * R * np.sin(T)
 Y_big_alpha = r_big_alpha * R * np.cos(T)
 Z_big_alpha = h_big_alpha * R - (h_big_alpha - htop_alpha)
 
-for i in range(len(X_big_alpha)):
-    X_big_alpha[i][20:60] = None
+# Slice Open surface
+X_big_alpha = slice_arr(20, 60, X_big_alpha)
+Y_big_alpha = slice_arr(20, 60, Y_big_alpha)
 
 #Little Cone
 h_lit_alpha = hbase_alpha + 70/100*hbase_alpha
@@ -74,21 +82,26 @@ Y_lit_alpha = np.flip(Y_lit_alpha, 0)
 dip = np.arccos(rtop_alpha/((rtop_alpha**2 + htop_alpha**2)**0.5))*180/np.pi
 
 Xf = np.linspace(-r_big_alpha, r_big_alpha, 10)
-Yf = np.linspace(-r_big_alpha, r_big_alpha, 5)
+Yf = np.linspace(-r_big_alpha, r_big_alpha, 10)
 Xf, Yf = np.meshgrid(Xf, Yf)
 Zf = (Xf-rtop_alpha)*np.tan(dip*np.pi/180)
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 
-ax.plot_wireframe(Xf, Yf, Zf, antialiased=True)
 
 ax.plot_surface(X_lit_alpha, Y_lit_alpha, Z_lit_alpha,
-                color='purple')
+                cmap='gist_heat')
+
+ax.plot_surface(Xf, Yf, Zf, antialiased=True, color="grey")
+
 ax.plot_surface(X_top_alpha, Y_top_alpha, Z_top_alpha,
-                color='limegreen')
+                cmap='summer')
+
 ax.plot_surface(X_big_alpha, Y_big_alpha, Z_big_alpha,
-                color='red')
+                cmap='gist_heat')
+
+ax.view_init(47,-126)
 
 ax.set_xlabel("EASTING(m)")
 ax.set_ylabel("NORTHING(m)")
