@@ -488,18 +488,21 @@ def monte_carlo_main():
     plt.show()
 
     #########################################################################################################################################################################
+    
+    gatherdata_parameters = {'': ["GRV [acre.ft]", "Net to Gross", "Porosity", "Oil Saturation", "Recovery Effeciency",
+                                  "Formation Volume Factor", "Chance Oil Trapped"],
+                             'ALPHA': [grv_alpha, ntg_alpha, por_alpha, so_alpha, re_alpha, fvf_alpha, chance_alpha],
+                             'BETA': [grv_beta, ntg_beta, por_beta, so_beta, re_beta, fvf_beta, chance_beta]}
 
-    gatherdata_parameters = {'':["GRV [acre.ft]", "Net to Gross", "Porosity", "Oil Saturation", "Recovery Effeciency",
-                                "Formation Volume Factor", "Chance Oil Trapped"],
-                            'ALPHA': [grv_alpha, ntg_alpha, por_alpha, so_alpha, re_alpha, fvf_alpha, chance_alpha],
-                            'BETA': [grv_beta, ntg_beta, por_beta, so_beta, re_beta, fvf_beta, chance_beta]}
-
-    gatherdata_volumetric = {'':["Volumetric Deterministic", "Volumetric Probabilistic", "Payout Period Deterministik",
-                                "Total Profit Deterministic"],
-                            'ALPHA': [volumetric_det_alpha, volumetric_prob_alpha["mean"], bea_alpha_det["payout"],
-                                    bea_alpha_det["total profit"]],
-                            'BETA': [volumetric_det_beta, volumetric_prob_beta["mean"], bea_beta_det["payout"],
-                                    bea_beta_det["total profit"]]}
+    gatherdata_volumetric = {'': ["Volumetric Deterministic", "Volumetric Probabilistic", "Payout Period Deterministik", 
+                                  "Payout Period Probabilistik", "Total Profit Deterministic",
+                                  "Total Profit Probabilistik"],
+                             'ALPHA': [volumetric_det_alpha, volumetric_prob_alpha["mean"], bea_alpha_det["payout"],
+                                       bea_alpha_prob["payout"], bea_alpha_det["total profit"], 
+                                       bea_alpha_prob["total profit"]],
+                             'BETA': [volumetric_det_beta, volumetric_prob_beta["mean"], bea_beta_det["payout"],
+                                       bea_beta_prob["payout"], bea_beta_det["total profit"], 
+                                       bea_beta_prob["total profit"]]}
 
     df_par = pd.DataFrame(gatherdata_parameters)
     df_vol = pd.DataFrame(gatherdata_volumetric)
