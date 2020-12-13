@@ -42,11 +42,11 @@
     For Windows:
     
     ```sh
-    python [Nama Program].py
+    python script_PCC_Penyisihan_UI_NEMESIS.py
     ```
     
     For Ubuntu/Linux:
     
     ```sh
-    python3 [Nama Program].py
+    python3 script_PCC_Penyisihan_UI_NEMESIS.py
     ```
