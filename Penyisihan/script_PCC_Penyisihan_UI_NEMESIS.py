@@ -125,10 +125,18 @@ def slice_arr(start, end, arr):
         arr[i][start:end] = None
     return arr
 
-def create_cone(R, T, r, H, hmax, hmin):
-    X = r * R * np.sin(T)
-    Y = r * R * np.cos(T)
-    Z = H * R - (hmax - hmin)
+def create_cone(R, T, r, H, hmax, hmin, xshift, yshift, zshift):
+    X = r * R * np.sin(T) + xshift
+    Y = r * R * np.cos(T) + yshift
+    Z = H * R - (hmax - hmin) + zshift
+    return X, Y, Z
+
+def create_fault(rtop, htop, rbig, xshift, yshift, zshift) :
+    dip = np.arccos(rtop / ((rtop ** 2 + htop ** 2) ** 0.5)) * 180 / np.pi
+    X = np.linspace(-rbig, rbig, 20)
+    Y = np.linspace(-rbig, rbig, 20)
+    X, Y = np.meshgrid(X+xshift, Y + yshift)
+    Z = (X-rtop) * np.tan(dip * np.pi / 180) + zshift
     return X, Y, Z
 
 def volumetric_deterministic(GRV, NtoG, por, so, re, fvf, chance) :
@@ -500,67 +508,141 @@ def monte_carlo_main():
     print(df_vol)
 
 def model_3d_main():
-    grv_alpha = grv_calc(rtop_alpha, rbase_alpha, htop_alpha, hbase_alpha) #meter cubic
-    grv_beta =  grv_calc(rtop_beta, rbase_beta, htop_beta, hbase_beta) #meter cubic
-    
-    #VISUALIZATION
-    theta = np.linspace(0,2*np.pi,90)
-    r = np.linspace(0,1,10)
+    grv_alpha = grv_calc(rtop_alpha, rbase_alpha, htop_alpha, hbase_alpha)  # meter cubic
+    grv_beta = grv_calc(rtop_beta, rbase_beta, htop_beta, hbase_beta)  # meter cubic
+
+    ###### VISUALIZATION ######
+    theta = np.linspace(0, 2 * np.pi, 90)
+    r = np.linspace(0, 1, 10)
     T, R = np.meshgrid(theta, r)
 
-    #Big Cone
-    h_big_alpha = htop_alpha + 70/100*htop_alpha
-    r_big_alpha = rtop_alpha/htop_alpha * h_big_alpha
+    # Big Cone
+    h_big_alpha = htop_alpha*2
+    r_big_alpha = rtop_alpha / htop_alpha * h_big_alpha
 
-    X_big_alpha, Y_big_alpha, Z_big_alpha = create_cone(R, T, r_big_alpha, h_big_alpha, h_big_alpha, htop_alpha)
+    h_big_beta = htop_beta*2
+    r_big_beta = rtop_beta / htop_beta * h_big_beta
 
+    X_big_alpha, Y_big_alpha, Z_big_alpha = create_cone(R, T, r_big_alpha, h_big_alpha, h_big_alpha, htop_alpha,
+                                                        0, 0, -wc_alpha)
 
+    X_big_beta, Y_big_beta, Z_big_beta = create_cone(R, T, r_big_beta, h_big_beta, h_big_beta, htop_beta,
+                                                        0, 20000, -wc_beta)
     # Slice Open surface
-    X_big_alpha = slice_arr(20, 60, X_big_alpha)
-    Y_big_alpha = slice_arr(20, 60, Y_big_alpha)
+    X_big_alpha = slice_arr(30, 70, X_big_alpha)
+    Y_big_alpha = slice_arr(30, 70, Y_big_alpha)
 
-    #Little Cone
-    h_lit_alpha = hbase_alpha + 70/100*hbase_alpha
-    r_lit_alpha = rbase_alpha/hbase_alpha * h_lit_alpha
+    X_big_beta = slice_arr(30, 70, X_big_beta)
+    Y_big_beta = slice_arr(30, 70, Y_big_beta)
 
-    X_lit_alpha, Y_lit_alpha, Z_lit_alpha = create_cone(R, T, r_lit_alpha, h_lit_alpha, h_lit_alpha, hbase_alpha)
+    # Little Cone
+    h_lit_alpha = hbase_alpha*2
+    r_lit_alpha = rbase_alpha / hbase_alpha * h_lit_alpha
 
+    h_lit_beta = hbase_beta*2
+    r_lit_beta = rbase_beta / hbase_beta * h_lit_beta
 
-    #Alpha Cone(Oil)
-    X_top_alpha, Y_top_alpha, Z_top_alpha = create_cone(R, T, rtop_alpha, htop_alpha, 0, 0)
+    X_lit_alpha, Y_lit_alpha, Z_lit_alpha = create_cone(R, T, r_lit_alpha, h_lit_alpha, h_lit_alpha, hbase_alpha,
+                                                        0, 0, -wc_alpha)
 
+    X_lit_beta, Y_lit_beta, Z_lit_beta = create_cone(R, T, r_lit_beta, h_lit_beta, h_lit_beta, hbase_beta,
+                                                        0, 20000, -wc_beta)
+
+    # Alpha Cone(Oil)
+    X_top_alpha, Y_top_alpha, Z_top_alpha = create_cone(R, T, rtop_alpha, htop_alpha, 0, 0,
+                                                        0, 0, -wc_alpha)
+
+    X_top_beta, Y_top_beta, Z_top_beta = create_cone(R, T, rtop_beta, htop_beta, 0, 0,
+                                                        0, 20000, -wc_beta)
     X_big_alpha = np.flip(X_big_alpha, 0)
     Y_big_alpha = np.flip(Y_big_alpha, 0)
+    X_big_beta = np.flip(X_big_beta, 0)
+    Y_big_beta = np.flip(Y_big_beta, 0)
     X_top_alpha = np.flip(X_top_alpha, 0)
     Y_top_alpha = np.flip(Y_top_alpha, 0)
+    X_top_beta = np.flip(X_top_beta, 0)
+    Y_top_beta = np.flip(Y_top_beta, 0)
     X_lit_alpha = np.flip(X_lit_alpha, 0)
     Y_lit_alpha = np.flip(Y_lit_alpha, 0)
+    X_lit_beta = np.flip(X_lit_beta, 0)
+    Y_lit_beta = np.flip(Y_lit_beta, 0)
 
-    #Fault
-    dip = np.arccos(rtop_alpha/((rtop_alpha**2 + htop_alpha**2)**0.5))*180/np.pi
-
-    Xf = np.linspace(-r_big_alpha, r_big_alpha, 10)
-    Yf = np.linspace(-r_big_alpha, r_big_alpha, 10)
-    Xf, Yf = np.meshgrid(Xf, Yf)
-    Zf = (Xf-rtop_alpha)*np.tan(dip*np.pi/180)
+    # Fault
+    Xf_alpha, Yf_alpha, Zf_alpha = create_fault(rtop_alpha, htop_alpha, r_big_alpha, 0, 0, -wc_alpha)
+    Xf_beta, Yf_beta, Zf_beta = create_fault(rtop_beta, htop_beta, r_big_beta, 0 , 20000, -wc_beta)
 
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
+    dip = np.arccos(rtop_alpha / ((rtop_alpha ** 2 + htop_alpha ** 2) ** 0.5)) * 180 / np.pi
+    print(dip)
+
+    ##Alpha##
+
+    ax.plot_wireframe(Xf_alpha, Yf_alpha, Zf_alpha, color='navy')
 
     ax.plot_surface(X_lit_alpha, Y_lit_alpha, Z_lit_alpha,
-                    cmap='gist_heat')
-
-    ax.plot_surface(Xf, Yf, Zf, antialiased=True, color="grey")
+                    color='red')
 
     ax.plot_surface(X_top_alpha, Y_top_alpha, Z_top_alpha,
                     cmap='summer')
 
     ax.plot_surface(X_big_alpha, Y_big_alpha, Z_big_alpha,
-                    cmap='gist_heat')
+                    color='darkviolet')
 
-    ax.view_init(47,-126)
+    ##Beta##
+    ax.plot_wireframe(Xf_beta, Yf_beta, Zf_beta,
+                      color='navy')
 
+    ax.plot_surface(X_lit_beta, Y_lit_beta, Z_lit_beta,
+                    color='red')
+    ax.plot_surface(X_top_beta, Y_top_beta, Z_top_beta,
+                    cmap='summer')
+    ax.plot_surface(X_big_beta, Y_big_beta, Z_big_beta,
+                    color='darkviolet')
+
+    ax.text(0, 0, -1200, "ALPHA",
+            bbox=dict(facecolor='white'),
+            fontsize=10,
+            fontweight='extra bold')
+
+    ax.text(-12000, 20000, 500, "BETA",
+            bbox=dict(facecolor='white'),
+            fontsize=10,
+            fontweight='extra bold')
+
+    legend_top = line.Line2D([0], [0],
+                             linestyle="none",
+                             c='darkviolet',
+                             marker='s')
+
+    legend_base = line.Line2D([0], [0],
+                              linestyle="none",
+                              c='red',
+                              marker='s')
+
+    legend_oil = line.Line2D([0], [0],
+                             linestyle="none",
+                             c='green',
+                             marker='s')
+
+    legend_fault = line.Line2D([0], [0],
+                                linestyle="none",
+                               c='navy',
+                               marker='_')
+
+    ax.legend([legend_top, legend_base, legend_oil, legend_fault],
+              ['Top', 'Base', 'Oil Trapped', 'Fault'],
+              numpoints=1,
+              fontsize=18)
+    ax.view_init(58, -147)
+
+
+    ax.set_xlim(-10000, 20000)
+    ax.set_ylim(-10000, 25000)
+    ax.set_title('3D Reservoir Model', bbox=dict(facecolor='cyan'),
+            fontsize=25,
+            fontweight='extra bold')
     ax.set_xlabel("EASTING(m)")
     ax.set_ylabel("NORTHING(m)")
     ax.set_zlabel("ELEVATION(m)")
