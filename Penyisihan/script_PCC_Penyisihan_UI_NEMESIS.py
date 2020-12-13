@@ -291,14 +291,14 @@ def monte_carlo_main():
 
     plt.subplot(121)
     dist_area_top_alpha = simulation_pert(area_top_alpha-area_top_alpha*20/100, area_top_alpha,
-                                        area_top_alpha+area_top_alpha*30/100)
+                                        area_top_alpha+area_top_alpha*50/100)
     plt.title('Area of Top Alpha Distribution')
     plt.xlabel('Area[m^2]')
     plt.ylabel('Probability Density Function')
 
     plt.subplot(122)
     dist_area_base_alpha = simulation_pert(area_base_alpha-area_base_alpha*20/100, area_base_alpha,
-                                        area_base_alpha+area_base_alpha*50/100)
+                                        area_base_alpha+area_base_alpha*30/100)
     plt.title('Area of Base Alpha Distribution')
     plt.xlabel('Area[m^2]')
     plt.ylabel('Probability Density Function')
@@ -309,14 +309,14 @@ def monte_carlo_main():
 
     plt.subplot(121)
     dist_area_top_beta = simulation_pert(area_top_beta-area_top_beta*20/100, area_top_beta,
-                                        area_top_beta+area_top_beta*30/100)
+                                        area_top_beta+area_top_beta*50/100)
     plt.title('Area of Top Beta Distribution')
     plt.xlabel('Area[m^2]')
     plt.ylabel('Probability Density Function')
 
     plt.subplot(122)
     dist_area_base_beta = simulation_pert(area_base_beta-area_base_beta*20/100, area_base_beta,
-                                        area_base_beta+area_base_beta*50/100)
+                                        area_base_beta+area_base_beta*30/100)
     plt.title('Area of Top Beta Distribution')
     plt.xlabel('Area[m^2]')
     plt.ylabel('Probability Density Function')
@@ -327,7 +327,7 @@ def monte_carlo_main():
     #########################################################################################################################################################################
 
     dist_reservoir_thickness = simulation_pert(reservoir_thickness-reservoir_thickness*20/100, reservoir_thickness,
-                                            reservoir_thickness+reservoir_thickness*20/100)
+                                            reservoir_thickness+reservoir_thickness*40/100)
     plt.title('RESERVOIR THICKNESS DISTRIBUTION', fontsize=20, fontweight='bold')
     plt.xlabel('Thickness [m]')
     plt.ylabel('Probability Density Function')
